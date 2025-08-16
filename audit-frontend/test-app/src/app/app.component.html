@@ -1,0 +1,15 @@
+<div class="app-container">
+  <h1>Session Tracking Example</h1>
+
+  <button (click)="navigateToUrl('another-page')">Go to Another Page</button>
+  
+  <button (click)="testApiCall()">Test API Call</button>
+  
+  <button (click)="testErrorHandling()">Trigger Error</button>
+  
+  <h2>Form Submission</h2>
+  <form (ngSubmit)="trackFormSubmission('exampleForm')" #exampleForm="ngForm">
+    <input type="text" placeholder="Enter something..." required />
+    <button type="submit">Submit Form</button>
+  </form>
+</div>
