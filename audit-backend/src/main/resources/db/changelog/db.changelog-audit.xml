@@ -1,0 +1,135 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" 
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro" 
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+                   http://www.liquibase.org/xml/ns/pro 
+                   http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd 
+                   http://www.liquibase.org/xml/ns/dbchangelog 
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create audit table -->
+    <changeSet author="fastCode, Inc" id="audit-000001">
+        <createTable tableName="audit">
+            <column name="identifier" type="VARCHAR(200)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="audit_pkey"/>
+            </column>
+            <column name="timestamp" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="actor" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="origin" type="VARCHAR(200)"/>
+            <column name="action" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="elements" type="TEXT"/>
+        </createTable>
+        
+        <!-- Add indexes for better performance -->
+        <createIndex tableName="audit" indexName="idx_audit_timestamp">
+            <column name="timestamp"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_actor">
+            <column name="actor"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_action">
+            <column name="action"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_origin">
+            <column name="origin"/>
+        </createIndex>
+        
+        <!-- Add comment for documentation -->
+        <sql>
+            COMMENT ON TABLE audit IS 'Audit trail table for tracking system events and entity changes';
+            COMMENT ON COLUMN audit.identifier IS 'Unique identifier for the audit record';
+            COMMENT ON COLUMN audit.timestamp IS 'The timestamp when the event occurred';
+            COMMENT ON COLUMN audit.actor IS 'The user or system that triggered the event';
+            COMMENT ON COLUMN audit.origin IS 'The origin or source of the event';
+            COMMENT ON COLUMN audit.action IS 'The action performed (e.g., CREATE, UPDATE, DELETE, API_CALL)';
+            COMMENT ON COLUMN audit.elements IS 'JSON formatted details of the event including entity changes, API details, etc.';
+        </sql>
+    </changeSet>
+
+    <!-- Add dedicated searchable columns for commonly filtered fields -->
+    <changeSet author="fastCode, Inc" id="audit-000002">
+        <addColumn tableName="audit">
+            <column name="http_method" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <addColumn tableName="audit">
+            <column name="path" type="VARCHAR(500)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <addColumn tableName="audit">
+            <column name="entity_name" type="VARCHAR(200)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <addColumn tableName="audit">
+            <column name="operation" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <addColumn tableName="audit">
+            <column name="response_status" type="VARCHAR(10)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <addColumn tableName="audit">
+            <column name="exception_type" type="VARCHAR(200)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <!-- Add indexes for better search performance -->
+        <createIndex tableName="audit" indexName="idx_audit_http_method">
+            <column name="http_method"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_path">
+            <column name="path"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_entity_name">
+            <column name="entity_name"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_operation">
+            <column name="operation"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_response_status">
+            <column name="response_status"/>
+        </createIndex>
+        
+        <createIndex tableName="audit" indexName="idx_audit_exception_type">
+            <column name="exception_type"/>
+        </createIndex>
+        
+        <!-- Add comments for documentation -->
+        <sql>
+            COMMENT ON COLUMN audit.http_method IS 'HTTP method for API calls (GET, POST, PUT, DELETE, etc.)';
+            COMMENT ON COLUMN audit.path IS 'API path or entity path being accessed';
+            COMMENT ON COLUMN audit.entity_name IS 'Name of the entity being audited';
+            COMMENT ON COLUMN audit.operation IS 'CRUD operation (CREATE, READ, UPDATE, DELETE)';
+            COMMENT ON COLUMN audit.response_status IS 'HTTP response status code';
+            COMMENT ON COLUMN audit.exception_type IS 'Type of exception if any occurred';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

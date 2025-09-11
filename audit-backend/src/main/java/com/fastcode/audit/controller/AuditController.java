@@ -4,7 +4,6 @@ import com.fastcode.audit.application.AuditEventDto;
 import com.fastcode.audit.application.AuditInput;
 import com.fastcode.audit.application.AuditService;
 import com.fastcode.audit.search.*;
-import org.audit4j.core.dto.AuditEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -46,19 +45,41 @@ public class AuditController {
     }
 
     // Search logic to handle search strings for LogAudit entity
-    private SearchCriteria generateSearchCriteriaForAuditLogs(String searchString) {
+    public static SearchCriteria generateSearchCriteriaForAuditLogs(String searchString){
         SearchCriteria searchCriteria = new SearchCriteria();
-        List<SearchFields> searchFields = new ArrayList<>();
+        searchCriteria.setType(3);
 
-        if (searchString != null && !searchString.isEmpty()) {
+        List<SearchFields> searchFields = new ArrayList<SearchFields>();
+
+        if(searchString != null && searchString.length() > 0) {
             String[] fields = searchString.split(";");
 
-            for (String field : fields) {
+            for(String field: fields) {
                 SearchFields searchField = new SearchFields();
-                String fieldName = field.substring(0, field.indexOf('='));
+
+                String fieldName = field.substring(0, field.indexOf('['));
+                String operator = field.substring(field.indexOf('[') + 1, field.indexOf(']'));
                 String searchValue = field.substring(field.indexOf('=') + 1);
+
                 searchField.setFieldName(fieldName);
-                searchField.setSearchValue(searchValue);
+                searchField.setOperator(operator);
+
+                if(!operator.equals("range")){
+                    searchField.setSearchValue(searchValue);
+                }
+                else {
+                    String[] rangeValues = searchValue.split(",");
+                    if(!rangeValues[0].isEmpty()) {
+                        String startingValue = rangeValues[0];
+                        searchField.setStartingValue(startingValue);
+                    }
+
+                    if(rangeValues.length == 2) {
+                        String endingValue = rangeValues[1];
+                        searchField.setEndingValue(endingValue);
+                    }
+                }
+
                 searchFields.add(searchField);
             }
         }
@@ -68,9 +89,9 @@ public class AuditController {
     }
 
     @PostMapping("/frontend")
-    public ResponseEntity<AuditEvent> frontendAudit(@RequestBody AuditInput input) {
-        AuditEvent output = auditService.logAudit(input);
-        return new ResponseEntity<>(output, HttpStatus.OK);
+    public ResponseEntity<String> frontendAudit(@RequestBody AuditInput input) {
+        auditService.logAudit(input);
+        return new ResponseEntity<>("Audit logged successfully", HttpStatus.OK);
     }
 
 

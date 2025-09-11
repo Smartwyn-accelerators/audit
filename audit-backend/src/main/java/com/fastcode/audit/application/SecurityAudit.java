@@ -2,15 +2,14 @@ package com.fastcode.audit.application;
 
 import com.fastcode.audit.AuditPropertiesConfiguration;
 import com.fastcode.audit.utils.PrivacyAwareUtils;
-import org.audit4j.core.AuditManager;
-import org.audit4j.core.dto.AuditEvent;
-import org.audit4j.core.exception.HandlerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @ConditionalOnClass(name = "org.springframework.security.authentication.event.AuthenticationSuccessEvent")
@@ -19,8 +18,12 @@ public class SecurityAudit {
     @Autowired
     private AuditPropertiesConfiguration env;
 
+    @Autowired
+    private AuditService customAuditService;
+
+
     @EventListener
-    public void onAuthenticationSuccess(Object event) throws HandlerException {
+    public void onAuthenticationSuccess(Object event) {
         if (event.getClass().getName().equals("org.springframework.security.authentication.event.AuthenticationSuccessEvent")) {
             try {
                 Method getAuthentication = event.getClass().getMethod("getAuthentication");
@@ -28,15 +31,20 @@ public class SecurityAudit {
                 String username = (String) authentication.getClass().getMethod("getName").invoke(authentication);
                 String roles = (String) authentication.getClass().getMethod("getAuthorities")
                         .invoke(authentication).toString();
-                AuditEvent auditEvent = new AuditEvent();
-                auditEvent.setAction("LOGIN");
-                auditEvent.addField("user", username);
-                auditEvent.addField("authorities", roles);
-                if (env.isEncryptionEnabled()) {
-                    AuditManager.getInstance().audit(PrivacyAwareUtils.encryptEvent(auditEvent, env.getEncryptionSecretKey()));
-                } else {
-                    AuditManager.getInstance().audit(auditEvent);
-                }
+
+                Map<String, Object> details = new HashMap<>();
+                details.put("username", username);
+                details.put("authorities", roles);
+                details.put("authenticationMethod", "LOGIN");
+                details.put("result", "SUCCESS");
+
+                customAuditService.logSecurityAudit(
+                        "AUTH_SUCCESS",
+                        username,
+                        "SECURITY_CONTEXT",
+                        "User authentication successful",
+                        details
+                );
             } catch (Exception e) {
                 // Handle reflection exceptions
             }
@@ -44,7 +52,7 @@ public class SecurityAudit {
     }
 
     @EventListener
-    public void onLogoutSuccess(Object event) throws HandlerException {
+    public void onLogoutSuccess(Object event) {
         if (event.getClass().getName().equals("org.springframework.security.authentication.event.LogoutSuccessEvent")) {
             try {
                 Method getAuthentication = event.getClass().getMethod("getAuthentication");
@@ -52,16 +60,20 @@ public class SecurityAudit {
                 String username = (String) authentication.getClass().getMethod("getName").invoke(authentication);
                 String roles = (String) authentication.getClass().getMethod("getAuthorities")
                         .invoke(authentication).toString();
-                AuditEvent auditEvent = new AuditEvent();
-                auditEvent.setAction("LOGOUT");
-                auditEvent.addField("user", username);
-                auditEvent.addField("authorities", roles);
 
-                if (env.isEncryptionEnabled()) {
-                    AuditManager.getInstance().audit(PrivacyAwareUtils.encryptEvent(auditEvent, env.getEncryptionSecretKey()));
-                } else {
-                    AuditManager.getInstance().audit(auditEvent);
-                }
+                Map<String, Object> details = new HashMap<>();
+                details.put("username", username);
+                details.put("authorities", roles);
+                details.put("authenticationMethod", "LOGOUT");
+                details.put("result", "SUCCESS");
+
+                customAuditService.logSecurityAudit(
+                        "AUTH_LOGOUT",
+                        username,
+                        "SECURITY_CONTEXT",
+                        "User logout successful",
+                        details
+                );
             } catch (Exception e) {
                 // Handle reflection exceptions
             }
@@ -69,7 +81,7 @@ public class SecurityAudit {
     }
 
     @EventListener
-    public void onAuthenticationFailure(Object event) throws HandlerException {
+    public void onAuthenticationFailure(Object event) {
         if (event.getClass().getName().equals("org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent")) {
             try {
                 Method getAuthentication = event.getClass().getMethod("getAuthentication");
@@ -77,16 +89,21 @@ public class SecurityAudit {
                 String username = (String) authentication.getClass().getMethod("getName").invoke(authentication);
                 String roles = (String) authentication.getClass().getMethod("getAuthorities")
                         .invoke(authentication).toString();
-                AuditEvent auditEvent = new AuditEvent();
-                auditEvent.setAction("FAILED_LOGIN");
-                auditEvent.addField("user", username);
-                auditEvent.addField("authorities", roles);
 
-                if (env.isEncryptionEnabled()) {
-                    AuditManager.getInstance().audit(PrivacyAwareUtils.encryptEvent(auditEvent, env.getEncryptionSecretKey()));
-                } else {
-                    AuditManager.getInstance().audit(auditEvent);
-                }
+                Map<String, Object> details = new HashMap<>();
+                details.put("username", username);
+                details.put("authorities", roles);
+                details.put("authenticationMethod", "LOGIN");
+                details.put("result", "FAILURE");
+                details.put("failureReason", "BAD_CREDENTIALS");
+
+                customAuditService.logSecurityAudit(
+                        "AUTH_FAILURE",
+                        username,
+                        "SECURITY_CONTEXT",
+                        "User authentication failed",
+                        details
+                );
             } catch (Exception e) {
                 // Handle reflection exceptions
             }
@@ -96,49 +113,70 @@ public class SecurityAudit {
 
 
     // Add methods for tracking other user activities, such as navigation and interactions
-    public void trackUserNavigation(String username, String page) throws HandlerException {
+    public void trackUserNavigation(String username, String page) {
         if (!env.isAuditSecurityDisabled()) {
-            AuditEvent auditEvent = new AuditEvent();
-            auditEvent.setAction("NAVIGATION");
-            auditEvent.addField("user", username);
-            auditEvent.addField("page", page);
+            Map<String, Object> details = new HashMap<>();
+            details.put("username", username);
+            details.put("page", page);
+            details.put("navigationEvent", true);
 
-            if (env.isEncryptionEnabled()) {
-                AuditManager.getInstance().audit(PrivacyAwareUtils.encryptEvent(auditEvent, env.getEncryptionSecretKey()));
-            } else {
-                AuditManager.getInstance().audit(auditEvent);
+            // Apply sensitive data masking if enabled
+            if (env.isSensitiveDataMaskingEnabled()) {
+                details = PrivacyAwareUtils.maskMap(details, env.getSensitiveDataKeys());
             }
+
+            customAuditService.logSecurityAudit(
+                    "USER_NAVIGATION",
+                    username,
+                    "SECURITY_CONTEXT",
+                    "User navigation tracked",
+                    details
+            );
         }
     }
 
     // Method to track password changes
-    public void trackPasswordChange(String username) throws HandlerException {
+    public void trackPasswordChange(String username) {
         if (!env.isAuditSecurityDisabled()) {
-            AuditEvent auditEvent = new AuditEvent();
-            auditEvent.setAction("PASSWORD_CHANGE");
-            auditEvent.addField("user", username);
+            Map<String, Object> details = new HashMap<>();
+            details.put("username", username);
+            details.put("passwordChangeEvent", true);
 
-            if (env.isEncryptionEnabled()) {
-                AuditManager.getInstance().audit(PrivacyAwareUtils.encryptEvent(auditEvent, env.getEncryptionSecretKey()));
-            } else {
-                AuditManager.getInstance().audit(auditEvent);
+            // Apply sensitive data masking if enabled
+            if (env.isSensitiveDataMaskingEnabled()) {
+                details = PrivacyAwareUtils.maskMap(details, env.getSensitiveDataKeys());
             }
+
+            customAuditService.logSecurityAudit(
+                    "PASSWORD_CHANGE",
+                    username,
+                    "SECURITY_CONTEXT",
+                    "Password change tracked",
+                    details
+            );
         }
     }
 
     // Method to track authorization actions
-    public void trackAuthorizationAction(String username, String action) throws HandlerException {
+    public void trackAuthorizationAction(String username, String action) {
         if (!env.isAuditSecurityDisabled()) {
-            AuditEvent auditEvent = new AuditEvent();
-            auditEvent.setAction("AUTHORIZATION_ACTION");
-            auditEvent.addField("user", username);
-            auditEvent.addField("action", action);
+            Map<String, Object> details = new HashMap<>();
+            details.put("username", username);
+            details.put("action", action);
+            details.put("authorizationEvent", true);
 
-            if (env.isEncryptionEnabled()) {
-                AuditManager.getInstance().audit(PrivacyAwareUtils.encryptEvent(auditEvent, env.getEncryptionSecretKey()));
-            } else {
-                AuditManager.getInstance().audit(auditEvent);
+            // Apply sensitive data masking if enabled
+            if (env.isSensitiveDataMaskingEnabled()) {
+                details = PrivacyAwareUtils.maskMap(details, env.getSensitiveDataKeys());
             }
+
+            customAuditService.logSecurityAudit(
+                    "AUTHORIZATION_ACTION",
+                    username,
+                    "SECURITY_CONTEXT",
+                    "Authorization action tracked",
+                    details
+            );
         }
     }
 }

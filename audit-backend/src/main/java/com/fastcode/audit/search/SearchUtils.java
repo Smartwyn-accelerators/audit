@@ -1,6 +1,7 @@
 package com.fastcode.audit.search;
 
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -54,7 +55,18 @@ public class SearchUtils {
 		searchCriteria.setFields(searchFields);
 		return searchCriteria;
 	}
-	
+	public static Timestamp stringToTimestamp(String dateString) {
+		try {
+			LocalDate localDate = stringToLocalDate(dateString);
+			if (localDate!=null) {
+				return Timestamp.valueOf(localDate.atStartOfDay());
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
+	}
+
 public static Date stringToDate(String str)
 	{
 		SimpleDateFormat formatter;

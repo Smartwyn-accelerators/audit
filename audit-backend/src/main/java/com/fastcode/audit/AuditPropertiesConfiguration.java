@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class AuditPropertiesConfiguration {
 
@@ -14,8 +16,8 @@ public class AuditPropertiesConfiguration {
     @Autowired
     private Environment env;
 
-    @Autowired
-    private AuditLayoutProperties auditLayoutProperties;
+//    @Autowired
+//    private AuditLayoutProperties auditLayoutProperties;
 
     private static final String FASTCODE_OFFSET_DEFAULT_ENV = "FASTCODE_OFFSET_DEFAULT";
     private static final String FASTCODE_OFFSET_DEFAULT_SYSPROP = "fastCode.offset.default";
@@ -83,6 +85,21 @@ public class AuditPropertiesConfiguration {
     private static final String AUDIT_API_PACKAGE_ENV = "AUDIT_API_PACKAGE";
     private static final String AUDIT_API_PACKAGE_SYSPROP = "audit.api.package";
 
+    private static final String AUDIT_AUTH_HEADER_NAME_ENV = "AUDIT_AUTH_HEADER_NAME";
+    private static final String AUDIT_AUTH_HEADER_NAME_SYSPROP = "audit.auth.header.name";
+
+    private static final String AUDIT_JWT_SECRET_KEY_ENV = "AUDIT_JWT_SECRET_KEY";
+    private static final String AUDIT_JWT_SECRET_KEY_SYSPROP = "audit.jwt.secret.key";
+
+    private static final String OIDC_ISSUER_URI_ENV = "OIDC_ISSUER_URI";
+    private static final String OIDC_ISSUER_URI_SYSPROP = "spring.security.oauth2.client.provider.oidc.issuer-uri";
+
+    private static final String SENSITIVE_DATA_MASKING_ENABLED_ENV = "SENSITIVE_DATA_MASKING_ENABLED";
+    private static final String SENSITIVE_DATA_MASKING_ENABLED_SYSPROP = "sensitive.data.masking.enabled";
+
+    private static final String SENSITIVE_DATA_KEYS_ENV = "SENSITIVE_DATA_KEYS";
+    private static final String SENSITIVE_DATA_KEYS_SYSPROP = "sensitive.data.keys";
+
     /**
      * @return true if console audit logging is enabled
      */
@@ -122,7 +139,24 @@ public class AuditPropertiesConfiguration {
      * @return the layout template for audit logging
      */
     public String getAuditLayoutTemplate() {
-        return auditLayoutProperties.getTemplate() != null ? auditLayoutProperties.getTemplate() : "";
+        // Check environment variable first
+        String value = System.getenv(AUDIT_LAYOUT_TEMPLATE_ENV);
+        if (value != null && !value.trim().isEmpty()) {
+            return value;
+        }
+        
+        // Check system property without Spring property resolution to avoid placeholder issues
+        try {
+            value = System.getProperty(AUDIT_LAYOUT_TEMPLATE_SYSPROP);
+            if (value != null && !value.trim().isEmpty()) {
+                return value;
+            }
+        } catch (Exception e) {
+            logger.debug("Could not get system property {}: {}", AUDIT_LAYOUT_TEMPLATE_SYSPROP, e.getMessage());
+        }
+        
+        // Return default template with escaped placeholders
+        return "${eventDate}|${uuid}|actor=${actor}|${action}|origin=${origin} => ${foreach fields field}${field.name} ${field.type}:${field.value}, ${end}";
     }
 
     /**
@@ -237,10 +271,71 @@ public class AuditPropertiesConfiguration {
         return getConfigurationProperty(FASTCODE_SORT_DIRECTION_DEFAULT_ENV, FASTCODE_SORT_DIRECTION_DEFAULT_SYSPROP, "ASC");
     }
 
+    /**
+     * @return the Audit Auth Header Name
+     */
+    public String getAuditAuthHeaderName() {
+        return getConfigurationProperty(AUDIT_AUTH_HEADER_NAME_ENV, AUDIT_AUTH_HEADER_NAME_SYSPROP, "Authorization");
+    }
 
+    /**
+     * @return the Audit Jwt Secret Key
+     */
+    public String getAuditJwtSecretKey() {
+        return getConfigurationProperty(AUDIT_JWT_SECRET_KEY_ENV, AUDIT_JWT_SECRET_KEY_SYSPROP, "ApplicationSecureSecretKeyToGenerateJWTsTokenForAuthenticationAndAuthorization");
+    }
 
+    /**
+     * @return the OIDC issuer URI
+     */
+    public String getOidcIssuerUri() {
+        return getConfigurationProperty(OIDC_ISSUER_URI_ENV, OIDC_ISSUER_URI_SYSPROP, "https://default-issuer.com/oauth2/default");
+    }
 
+    /**
+     * @return true if sensitive data masking is enabled
+     */
+    public boolean isSensitiveDataMaskingEnabled() {
+        return Boolean.parseBoolean(getConfigurationProperty(SENSITIVE_DATA_MASKING_ENABLED_ENV, SENSITIVE_DATA_MASKING_ENABLED_SYSPROP, "false"));
+    }
 
+    /**
+     * @return the sensitive data keys configuration as a map
+     */
+    public Map<String, String> getSensitiveDataKeys() {
+        String keysConfig = getConfigurationProperty(SENSITIVE_DATA_KEYS_ENV, SENSITIVE_DATA_KEYS_SYSPROP, "");
+        if (keysConfig == null || keysConfig.trim().isEmpty()) {
+            return getDefaultSensitiveDataKeys();
+        }
+        
+        try {
+            Map<String, String> keys = new java.util.HashMap<>();
+            String[] pairs = keysConfig.split(",");
+            for (String pair : pairs) {
+                String[] keyValue = pair.split(":");
+                if (keyValue.length == 2) {
+                    keys.put(keyValue[0].trim(), keyValue[1].trim());
+                }
+            }
+            return keys;
+        } catch (Exception e) {
+            logger.warn("Failed to parse sensitive data keys, using defaults: {}", e.getMessage());
+            return getDefaultSensitiveDataKeys();
+        }
+    }
+
+    /**
+     * @return default sensitive data keys
+     */
+    private Map<String, String> getDefaultSensitiveDataKeys() {
+        Map<String, String> defaultKeys = new java.util.HashMap<>();
+        defaultKeys.put("password", "(?i)(\"?(password|pwd|secret|pass|key|token|apikey|api_key)\"?)" +
+                "\\s*[:=,;\\-\\>]\\s*([\"']?)[^\\s\"'}]+\\2?");
+        defaultKeys.put("creditcard", "\\b(?:\\d[ -]*?){13,16}\\b");
+        defaultKeys.put("ssn", "\\b\\d{3}-?\\d{2}-?\\d{4}\\b");
+        defaultKeys.put("email", "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b");
+        return defaultKeys;
+    }
     /**
      * Looks for the given key in the following places (in order):
      *
