@@ -1,0 +1,166 @@
+.timesheet-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #1976d2;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toolbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 500;
+  vertical-align: text-top;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-menu {
+  .notification-header {
+    width: 100%;
+    min-width: 350px;
+    
+    .notification-title {
+      font-size: 16px;
+      padding: 5px 0 5px 15px;
+      display: block;
+      font-weight: 500;
+    }
+  }
+}
+
+.main-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 250px;
+  background: #fafafa;
+  border-right: 1px solid #e0e0e0;
+}
+
+.navigation-tree {
+  padding: 16px 0;
+}
+
+.tree-node {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  
+  &.selected-node {
+    background-color: rgba(25, 118, 210, 0.12);
+    border-right: 3px solid #1976d2;
+  }
+}
+
+.node-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  width: 100%;
+}
+
+.node-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.node-label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mat-icon-rtl-mirror {
+  transform: scaleX(-1);
+}
+
+// Angular Material 20 compatible icon styling
+.mat-mdc-icon {
+  &.rtl-mirror {
+    transform: scaleX(-1);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .sidenav {
+    width: 200px;
+  }
+  
+  .app-title {
+    font-size: 18px;
+  }
+  
+  .node-content {
+    padding: 6px 12px;
+  }
+  
+  .node-label {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidenav {
+    width: 180px;
+  }
+  
+  .toolbar-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .logo-section {
+    justify-content: center;
+  }
+  
+  .user-section {
+    justify-content: center;
+  }
+}

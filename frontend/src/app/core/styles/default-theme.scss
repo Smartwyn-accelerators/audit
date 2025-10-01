@@ -1,0 +1,51 @@
+// Angular Material 20 compatible theme
+@use '@angular/material' as mat;
+
+// Include the core styles **once** for the entire app
+@include mat.core();
+
+// Define your color palettes using Angular Material 20 API
+$primary-palette: mat.define-palette(mat.$blue-palette);
+$accent-palette: mat.define-palette(mat.$pink-palette);
+$warn-palette: mat.define-palette(mat.$red-palette);
+
+// Define themes using Angular Material 20 API
+$light-theme: mat.define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+$dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+// Apply the theme
+@include mat.all-component-themes($light-theme);
+
+.theme-alternate {
+  @include mat.all-component-colors($dark-theme);
+}
+
+// Example: custom chip padding
+.mat-standard-chip {
+  padding: .5em .85em;
+  min-height: 2.5em;
+}
+
+// Material icons & fonts
+@import url('https://fonts.googleapis.com/css?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+.material-icons {
+  font-family: 'Material Icons', 'Material Icons';
+}

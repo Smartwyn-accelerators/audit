@@ -1,0 +1,89 @@
+// ✅ new API: only @use, no @import
+@use '@angular/material' as mat;
+
+// Include the core styles **once** for the entire app
+@include mat.core();
+
+// ✅ define your color palettes using mat.define-palette
+$primary-palette: mat.define-palette((
+  50: #c5cae9,
+  100: #c5cae9,
+  200: #3f51b5,
+  500: #3f51b5,
+  700: #303f9f,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #ffffff,
+    500: #ffffff,
+    700: #ffffff,
+  )
+));
+
+$accent-palette: mat.define-palette((
+  50: #ff80ab,
+  100: #ff80ab,
+  200: #ff4081,
+  500: #ff4081,
+  700: #f50057,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #ffffff,
+    500: #ffffff,
+    700: #ffffff,
+  )
+));
+
+$warn-palette: mat.define-palette((
+  50: #ffcdd2,
+  100: #ffcdd2,
+  200: #f44336,
+  500: #f44336,
+  700: #d32f2f,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #ffffff,
+    500: #ffffff,
+    700: #ffffff,
+  )
+));
+
+// ✅ define themes using mat.define-light-theme and mat.define-dark-theme
+$light-theme: mat.define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette,
+  ),
+  // typography and density can also be added here
+));
+
+$dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette,
+  ),
+));
+
+// ✅ apply the theme
+@include mat.all-component-themes($light-theme);
+
+.theme-alternate {
+  @include mat.all-component-colors($dark-theme);
+}
+
+// Example: custom chip padding
+.mat-standard-chip {
+  padding: .5em .85em;
+  min-height: 2.5em;
+}
+
+// ✅ Material icons & fonts
+@import url('https://fonts.googleapis.com/css?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+.material-icons {
+  font-family: 'Material Icons', 'Material Icons';
+}

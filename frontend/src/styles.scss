@@ -1,0 +1,112 @@
+
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+}
+
+// Custom CSS variables for audit-library
+// These will automatically inherit from Angular Material theme
+:root {
+  // Audit Library Theme Variables - 100% Material Design System Integration
+  --mal-primary-color: var(--mat-sys-primary);
+  --mal-accent-color: var(--mat-sys-tertiary);
+  --mal-warn-color: var(--mat-sys-error);
+  --mal-filter-bg: var(--mat-sys-surface-container);
+  --mal-filter-border: var(--mat-sys-outline);
+  --mal-table-header-bg: var(--mat-sys-surface-variant);
+  --mal-table-row-even: var(--mat-sys-surface);
+  --mal-table-row-odd: var(--mat-sys-surface-container-low);
+  --mal-table-hover: var(--mat-sys-primary-container);
+  --mal-button-bg: var(--mat-sys-primary);
+  --mal-button-text: var(--mat-sys-on-primary);
+  --mal-button-hover: var(--mat-sys-primary-container);
+  --mal-card-bg: var(--mat-sys-surface);
+  --mal-card-shadow: var(--mat-sys-elevation-level1);
+  --mal-text-primary: var(--mat-sys-on-surface);
+  --mal-text-secondary: var(--mat-sys-on-surface-variant);
+  --mal-input-bg: var(--mat-sys-surface);
+  --mal-spinner-bg: var(--mat-sys-surface-variant);
+}
+
+// Example: To change theme, uncomment any of these sections:
+
+// Green Theme Example
+// :root {
+//   --mal-primary-color: #4caf50;
+//   --mal-accent-color: #ff5722;
+//   --mal-warn-color: #f44336;
+//   --mal-filter-bg: #e8f5e8;
+//   --mal-filter-border: #c8e6c9;
+//   --mal-table-header-bg: #f1f8e9;
+//   --mal-table-row-even: #ffffff;
+//   --mal-table-row-odd: #f9f9f9;
+//   --mal-table-hover: #e0f2e0;
+//   --mal-button-bg: #4caf50;
+//   --mal-button-text: #ffffff;
+//   --mal-card-bg: #ffffff;
+//   --mal-card-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+// }
+
+// Purple Theme Example
+// :root {
+//   --mal-primary-color: #9c27b0;
+//   --mal-accent-color: #ffc107;
+//   --mal-warn-color: #f44336;
+//   --mal-filter-bg: #f3e5f5;
+//   --mal-filter-border: #e1bee7;
+//   --mal-table-header-bg: #fce4ec;
+//   --mal-table-row-even: #ffffff;
+//   --mal-table-row-odd: #f9f9f9;
+//   --mal-table-hover: #f8bbd9;
+//   --mal-button-bg: #9c27b0;
+//   --mal-button-text: #ffffff;
+//   --mal-card-bg: #ffffff;
+//   --mal-card-shadow: 0 2px 8px rgba(156, 39, 176, 0.2);
+// }
+
+// Dark Theme Example
+// :root {
+//   --mal-primary-color: #90caf9;
+//   --mal-accent-color: #f48fb1;
+//   --mal-warn-color: #f44336;
+//   --mal-filter-bg: #424242;
+//   --mal-filter-border: #616161;
+//   --mal-table-header-bg: #303030;
+//   --mal-table-row-even: #424242;
+//   --mal-table-row-odd: #303030;
+//   --mal-table-hover: #4a4a4a;
+//   --mal-button-bg: #90caf9;
+//   --mal-button-text: #000000;
+//   --mal-card-bg: #424242;
+//   --mal-card-shadow: 0 2px 8px rgba(0,0,0,0.3);
+// }

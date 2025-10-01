@@ -1,0 +1,74 @@
+<div class="timesheet-layout">
+  <mat-toolbar class="main-toolbar">
+    <mat-toolbar-row>
+      <div class="toolbar-content">
+        <div class="logo-section">
+          <div class="logo" routerLink="/home"></div>
+          <span class="app-title">Timesheet</span>
+        </div>
+        <div class="user-section">
+          <button 
+            [matMenuTriggerFor]="userMenu" 
+            type="button" 
+            mat-flat-button 
+            color="primary">
+            {{ username }}
+            <mat-icon color="default">keyboard_arrow_down</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+
+  <!-- User Menu -->
+  <mat-menu #userMenu="matMenu" hasBackdrop="true" xPosition="after" yPosition="below">
+    <button mat-menu-item (click)="logout()">
+      <mat-icon color="warn">logout</mat-icon>
+      Logout
+    </button>
+  </mat-menu>
+
+  <div class="main-content">
+    <mat-sidenav-container class="sidenav-container" autoSize="true">
+      <mat-sidenav #drawer position="start" class="sidenav" mode="side" [opened]="true">
+        <mat-tree [dataSource]="datasource" [treeControl]="treeControl" class="navigation-tree">
+          <!-- Leaf node template -->
+          <mat-tree-node *matTreeNodeDef="let node" class="tree-node" 
+            [matTreeNodePaddingIndent]="node.matTreeNodePaddingIndent" 
+            [matTreeNodePadding]="node.matTreeNodePadding"
+            [routerLink]="node.route" 
+            (click)="onNodeSelect(node)" 
+            [ngClass]="{'selected-node': node === selectedNode}">
+            <div class="node-content">
+              <mat-icon>{{ node.iconName }}</mat-icon>
+              <span class="node-label">{{ node.name }}</span>
+            </div>
+          </mat-tree-node>
+
+          <!-- Expandable node template -->
+          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" class="tree-node"
+            [matTreeNodePaddingIndent]="node.matTreeNodePaddingIndent" 
+            [matTreeNodePadding]="node.matTreeNodePadding"
+            [routerLink]="node.route" 
+            (click)="onNodeSelect(node)" 
+            [ngClass]="{'selected-node': node === selectedNode}">
+            <button mat-icon-button matTreeNodeToggle [disabled]="node.disabled">
+              <mat-icon class="mat-icon-rtl-mirror">
+                {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
+              </mat-icon>
+            </button>
+            <div class="node-content">
+              <mat-icon class="node-icon" color="default">{{ node.iconName }}</mat-icon>
+              <span class="node-label">{{ node.name }}</span>
+            </div>
+          </mat-tree-node>
+        </mat-tree>
+      </mat-sidenav>
+      
+      <mat-sidenav-content>
+        <router-outlet></router-outlet>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>
+</div>

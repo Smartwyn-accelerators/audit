@@ -1,0 +1,24 @@
+<section class="spinner-container" *ngIf="loading" style="z-index:99999999;">
+  <mat-spinner></mat-spinner>
+</section>
+
+<div class="login-container">
+  <mat-card class="item-card">
+    <mat-card-title class="text-center">
+      <figure class="logo">
+        <img src="../../../../../assets/images/logo.png" alt="logo" style="width:185px;" />
+      </figure>
+      <figcaption class="text-center">
+        <h2 class="sub-title">Log In</h2>
+      </figcaption>
+    </mat-card-title>
+    <mat-card-content>
+      <p>Login via your OpenID Connect provider.</p>
+      <mat-card-actions class="item-action text-center">
+        <button (click)="onSubmit()" name="login" mat-flat-button color="primary" class="btn-submit">
+          Login
+        </button>
+      </mat-card-actions>
+    </mat-card-content>
+  </mat-card>
+</div>

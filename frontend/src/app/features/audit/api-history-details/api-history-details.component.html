@@ -1,0 +1,61 @@
+<mat-card class="api-details-card">
+    <h2>User Audit Trail</h2>
+    <table>
+        <tr class="lightdark">
+            <td class="heading">&nbsp; API:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.path}}<br>&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="heading">&nbsp;Operation:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.method}}<br>&nbsp;</td>
+        </tr>
+        <tr class="lightdark">
+            <td class="heading">&nbsp;Process Time (ms):<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.processTime}} &nbsp; millis<br>&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="heading">&nbsp;User:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.userName}}<br>&nbsp;</td>
+        </tr>
+        <tr class="lightdark">
+            <td class="heading">&nbsp;Request Time:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.requestTime}}<br>&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="heading">&nbsp;Response Time:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.responseTime}}<br>&nbsp;</td>
+        </tr>
+        <tr class="lightdark">
+            <td class="heading">&nbsp;Caller's IP Address:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.clientAddress}}<br>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td class="heading">&nbsp;Query:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.query}}<br>&nbsp;</td>
+        </tr>
+        <tr class="lightdark">
+            <td class="heading">&nbsp;Body:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.body}}<br>&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="heading">&nbsp;Header:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.header}}<br>&nbsp;</td>
+        </tr>
+
+        <tr class="lightdark">
+            <td class="heading">&nbsp;browser:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.browser}}<br>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td class="heading">&nbsp;Response Status:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.responseStatus}}<br>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td class="heading">&nbsp;Response:<br>&nbsp;</td>
+            <td>&nbsp;{{apiHistoryDetails.response}}<br>&nbsp;</td>
+        </tr>
+    </table>
+</mat-card>
